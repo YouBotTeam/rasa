@@ -10,7 +10,6 @@ from telebot.types import (
     InlineKeyboardMarkup,
     KeyboardButton,
     ReplyKeyboardMarkup,
-    Message,
 )
 from typing import Dict, Text, Any, List, Optional, Callable, Awaitable
 
@@ -36,7 +35,7 @@ class TelegramOutput(TeleBot, OutputChannel):
         self, recipient_id: Text, text: Text, **kwargs: Any
     ) -> None:
         for message_part in text.strip().split("\n\n"):
-            self.send_message(recipient_id, message_part)
+            self.send_message(recipient_id, message_part, parse_mode='Markdown')
 
     async def send_image_url(
         self, recipient_id: Text, image: Text, **kwargs: Any
@@ -170,15 +169,15 @@ class TelegramInput(InputChannel):
         self.debug_mode = debug_mode
 
     @staticmethod
-    def _is_location(message: Message) -> bool:
+    def _is_location(message) -> bool:
         return message.location is not None
 
     @staticmethod
-    def _is_user_message(message: Message) -> bool:
+    def _is_user_message(message) -> bool:
         return message.text is not None
 
     @staticmethod
-    def _is_button(message: Update) -> bool:
+    def _is_button(message) -> bool:
         return message.callback_query is not None
 
     def blueprint(
@@ -206,6 +205,7 @@ class TelegramInput(InputChannel):
             if request.method == "POST":
 
                 request_dict = request.json
+                logger.info(f'Telegram request: {request_dict}')
                 update = Update.de_json(request_dict)
                 if not out_channel.get_me().username == self.verify:
                     logger.debug("Invalid access token, check it matches Telegram")
@@ -227,19 +227,19 @@ class TelegramInput(InputChannel):
                 sender_id = msg.chat.id
                 metadata = self.get_metadata(request)
                 try:
-                    if text == (INTENT_MESSAGE_PREFIX + USER_INTENT_RESTART):
+                    if text == (INTENT_MESSAGE_PREFIX + USER_INTENT_RESTART) or text == (INTENT_MESSAGE_PREFIX + 'start'):
+                        # await on_new_message(
+                        #     UserMessage(
+                        #         text,
+                        #         out_channel,
+                        #         sender_id,
+                        #         input_channel=self.name(),
+                        #         metadata=metadata,
+                        #     )
+                        # )
                         await on_new_message(
                             UserMessage(
-                                text,
-                                out_channel,
-                                sender_id,
-                                input_channel=self.name(),
-                                metadata=metadata,
-                            )
-                        )
-                        await on_new_message(
-                            UserMessage(
-                                "/start",
+                                "/welcome",
                                 out_channel,
                                 sender_id,
                                 input_channel=self.name(),

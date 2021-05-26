@@ -9,6 +9,8 @@ import traceback
 import typing
 from typing import Any, Dict, Optional, Text, Type
 
+from nlu.classifiers.multi_classifier import Multi_Classifier
+from nlu.extractors.my_duckling_http_extractor import myDucklingHTTPExtractor
 from rasa.nlu.classifiers.diet_classifier import DIETClassifier
 from rasa.nlu.classifiers.fallback_classifier import FallbackClassifier
 from rasa.nlu.classifiers.keyword_intent_classifier import KeywordIntentClassifier
@@ -76,6 +78,7 @@ component_classes = [
     DucklingEntityExtractor,
     EntitySynonymMapper,
     RegexEntityExtractor,
+    myDucklingHTTPExtractor,
     # featurizers
     SpacyFeaturizer,
     MitieFeaturizer,
@@ -90,6 +93,7 @@ component_classes = [
     KeywordIntentClassifier,
     DIETClassifier,
     FallbackClassifier,
+    Multi_Classifier,
     # selectors
     ResponseSelector,
 ]
